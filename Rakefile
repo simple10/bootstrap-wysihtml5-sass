@@ -15,7 +15,7 @@ require 'rake'
 require 'uglifier'
 
 task :default do
-    version = File.open(File.join(ROOT, 'VERSION')).read
+    version = File.open(File.join(ROOT, 'VERSION')).read.strip!
     output_path = File.join(ROOT, "dist")
 
     js_input_path = File.join('src', 'bootstrap-wysihtml5.js')
