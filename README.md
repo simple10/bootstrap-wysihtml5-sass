@@ -12,9 +12,23 @@ bootstrap-wysihtml5-sass is a Bootstrap 3 + Sass port of [bootstrap-wysihtml5](h
 
 ## Rails
 
-1. Copy `src/bootstrap-wysihtml5.js`, `src/locales`, and `lib/js/wysihtml5-0.4.0pre.js` to `vendors/assets/javascripts`
-2. Copy `src/bootstrap-wysihtml5.scss` to `vendors/assets/stylesheets`
-3. Add js to assets pipleline
+[1] Copy javascripta
+
+```bash
+src/bootstrap-wysihtml5.js
+src/locales
+lib/js/wysihtml5-0.4.0pre.js
+# Copy to => vendors/assets/javascripts
+```
+
+[2] Copy stylesheets
+
+```bash
+src/bootstrap-wysihtml5.scss
+# Copy to => vendors/assets/stylesheets
+```
+
+[3] Add js to assets pipleline
 
 ```coffeescript
 # app/assets/javascripts/application.coffee
@@ -22,7 +36,7 @@ bootstrap-wysihtml5-sass is a Bootstrap 3 + Sass port of [bootstrap-wysihtml5](h
 #= require bootstrap-wysihtml5
 ```
 
-4. Add css to assets pipeline
+[4] Add css to assets pipeline
 
 ```css
 // app/assets/stylesheets/application.scss
@@ -30,13 +44,13 @@ bootstrap-wysihtml5-sass is a Bootstrap 3 + Sass port of [bootstrap-wysihtml5](h
 @import "wysihtml5";
 ```
 
-5. Add `wysihtml5-styles.css` to production config
+[5] Add `wysihtml5-styles.css` to production config
 
 ```ruby
 config.assets.precompile += %w( wysihtml5-styles.css )
 ```
 
-6. Initialize editor in a view
+[6] Initialize editor in a view
 
 ```javascript
 $('textarea.wysihtml5').wysihtml5({
