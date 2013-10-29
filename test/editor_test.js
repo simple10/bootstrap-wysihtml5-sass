@@ -374,7 +374,7 @@ if (wysihtml5.browser.supported()) {
 
 
   asyncTest("Check public api", function() {
-    expect(14);
+    expect(13);
 
     var that = this;
 
@@ -418,7 +418,6 @@ if (wysihtml5.browser.supported()) {
       // Check disable/enable
       editor.disable();
       ok(!composerElement.getAttribute("contentEditable"), "When disabled the composer hasn't the contentEditable attribute");
-      equal(composerElement.getAttribute("disabled"), "disabled", "When disabled the composer has the disabled=\"disabled\" attribute");
 
       editor.enable();
       equal(composerElement.getAttribute("contentEditable"), "true", "After enabling the editor the contentEditable property is true");
