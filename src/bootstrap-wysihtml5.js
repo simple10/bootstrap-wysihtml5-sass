@@ -394,12 +394,12 @@
 
     var defaultOptions = $.fn.wysihtml5.defaultOptions = {
         "font-styles": true,
-        "color": true,
+        "color": false,
         "emphasis": true,
-        "lists": true,
-        "html": false,
         "link": true,
+        "lists": true,
         "image": true,
+        "html": true,
         events: {},
         parserRules: {
             classes: {
