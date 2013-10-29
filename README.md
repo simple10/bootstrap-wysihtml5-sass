@@ -1,6 +1,12 @@
 # Overview
 
-bootstrap-wysihtml5-sass is a Bootstrap 3 + Sass port of [bootstrap-wysihtml5](http://jhollingworth.github.com/bootstrap-wysihtml5/)
+bootstrap-wysihtml5-sass is a [Twitter Bootstrap 3](http://getbootstrap.com/) + [Sass](http://sass-lang.com/) port of [bootstrap-wysihtml5](http://jhollingworth.github.com/bootstrap-wysihtml5/)
+
+**[Demo](http://jhollingworth.github.io/bootstrap-wysihtml5/)** of bootstrap-wysihtml5 with
+Bootstrap 2.
+
+bootstrap-wysihtml5-sass uses Bootstrap 3 and fixes several outstanding bugs of bootstrap-wysihtml5.
+
 
 ## Project Goals:
 
@@ -99,7 +105,7 @@ $('#some-textarea').wysihtml5({
 	"html": false, //Button which allows you to edit the generated HTML. Default false
 	"link": true, //Button to insert a link. Default true
 	"image": true, //Button to insert an image. Default true,
-	"color": false //Button to change color of font  
+	"color": false //Button to change color of font
 });
 ```
 
