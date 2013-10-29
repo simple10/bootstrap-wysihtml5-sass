@@ -12,7 +12,7 @@ bootstrap-wysihtml5-sass is a Bootstrap 3 + Sass port of [bootstrap-wysihtml5](h
 
 ## Rails
 
-[1] Copy javascripta
+[1] Copy javascripts
 
 ```bash
 src/bootstrap-wysihtml5.js
