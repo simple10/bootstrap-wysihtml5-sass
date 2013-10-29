@@ -1,11 +1,9 @@
 # Overview
 
-bootstrap-wysihtml5-sass is a [Twitter Bootstrap 3](http://getbootstrap.com/) + [Sass](http://sass-lang.com/) port of [bootstrap-wysihtml5](http://jhollingworth.github.com/bootstrap-wysihtml5/)
+Bootstrap-wysihtml5-sass is a [Twitter Bootstrap 3](http://getbootstrap.com/) + [Sass](http://sass-lang.com/) port of [bootstrap-wysihtml5](http://jhollingworth.github.com/bootstrap-wysihtml5/).
 
 **[Demo](http://jhollingworth.github.io/bootstrap-wysihtml5/)** of bootstrap-wysihtml5 with
-Bootstrap 2.
-
-bootstrap-wysihtml5-sass uses Bootstrap 3 and fixes several outstanding bugs of bootstrap-wysihtml5.
+Bootstrap 2. Bootstrap-wysihtml5-sass uses Bootstrap 3 and fixes several outstanding bugs of bootstrap-wysihtml5.
 
 
 ## Project Goals:
