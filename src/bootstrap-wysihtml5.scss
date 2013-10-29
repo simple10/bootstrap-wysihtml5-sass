@@ -29,7 +29,7 @@ ul.wysihtml5-toolbar a[data-wysihtml5-command=underline] {
   text-decoration: underline;
 }
 
-.wysihtml5-commands-active, .wysihtml5-action-active {
+.wysihtml5-command-active, .wysihtml5-action-active {
   @extend .btn:active;
 }
 
