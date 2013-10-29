@@ -459,7 +459,7 @@
                 "pre": 1
             }
         },
-        stylesheets: wysi.stylesheets || ["compiled/wysihtml5-styles.css"],
+        stylesheets: ["compiled/wysihtml5-styles.css"],
         locale: "en"
     };
 
