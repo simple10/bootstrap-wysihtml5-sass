@@ -163,7 +163,6 @@
         };
 
 
-        window.editor = this.editor;
         // Dynamically expand and contract editor to content size
         var getRange = function(iframe) {
             var rng, win = iframe.contentWindow,
@@ -234,7 +233,7 @@
 
         createEditor: function(options) {
             options = options || {};
-            
+
             // Add the toolbar to a clone of the options object so multiple instances
             // of the WYISYWG don't break because "toolbar" is already defined
             options = $.extend(true, {}, options);
@@ -467,7 +466,7 @@
             return methods.init.apply( this, arguments );
         } else {
             $.error( 'Method ' +  method + ' does not exist on jQuery.wysihtml5' );
-        }    
+        }
     };
 
     $.fn.wysihtml5.Constructor = Wysihtml5;
@@ -480,7 +479,6 @@
         "lists": true,
         "image": true,
         "html": true,
-        events: {},
         "useLineBreaks": false,
         parserRules: {
             classes: {
