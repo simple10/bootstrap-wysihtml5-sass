@@ -30,7 +30,12 @@ ul.wysihtml5-toolbar a[data-wysihtml5-command=underline] {
 }
 
 .wysihtml5-command-active, .wysihtml5-action-active {
-  @extend .btn:active;
+  &.btn {
+    @extend .btn:active;
+  }
+  &:not(.btn) {
+    @extend .form-control[disabled];
+  }
 }
 
 ul.wysihtml5-commands-disabled .dropdown-menu {
