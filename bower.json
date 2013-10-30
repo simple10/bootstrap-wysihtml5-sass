@@ -3,6 +3,8 @@
     "version": "0.0.5",
     "main": ["src/bootstrap-wysihtml5.scss", "src/bootstrap-wysihtml5.js"],
     "dependencies": {
-        "wysihtml5": "~0.4.0pre"
+        "wysihtml5": "~0.4.0pre",
+        "imagesloaded": "~3.0.4",
+        "jquery.scrollTo": "~1.4.3"
     }
 }
