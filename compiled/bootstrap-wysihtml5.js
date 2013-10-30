@@ -1,4 +1,4 @@
-/* bootstrap-wysihtml5-sass v0.0.4 by @simple10 */
+/* bootstrap-wysihtml5-sass v0.0.5 by @simple10 */
 !function($, wysi) {
     "use strict";
 
@@ -7,10 +7,10 @@
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown'>" +
               "<a class='btn btn-default btn" + size + " dropdown-toggle' data-toggle='dropdown' href='#' tabindex='-1'>" +
-              "<i class='glyphicon glyphicon-font'></i>&nbsp;<span class='current-font'>" + locale.font_styles.normal + "</span>&nbsp;<b class='caret'></b>" +
+              "<i class='glyphicon glyphicon-font'></i>&nbsp;<span>" + locale.font_styles.normal + "</span>&nbsp;<b class='caret'></b>" +
               "</a>" +
               "<ul class='dropdown-menu'>" +
-                "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='div'>" + locale.font_styles.normal + "</a></li>" +
+                "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='p'>" + locale.font_styles.normal + "</a></li>" +
                 "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='h1'>" + locale.font_styles.h1 + "</a></li>" +
                 "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='h2'>" + locale.font_styles.h2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='h3'>" + locale.font_styles.h3 + "</a></li>" +
@@ -106,7 +106,7 @@
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown'>" +
               "<a class='btn btn-default dropdown-toggle" + size + "' data-toggle='dropdown' href='#' tabindex='-1'>" +
-                "<span class='current-color'>" + locale.colours.black + "</span>&nbsp;<b class='caret'></b>" +
+                "<span>" + locale.colours.black + "</span>&nbsp;<b class='caret'></b>" +
               "</a>" +
               "<ul class='dropdown-menu'>" +
                 "<li><div class='wysihtml5-colors' data-wysihtml5-command-value='black'></div><a class='wysihtml5-colors-title' data-wysihtml5-command='foreColor' data-wysihtml5-command-value='black'>" + locale.colours.black + "</a></li>" +
@@ -139,7 +139,86 @@
         this.toolbar = this.createToolbar(el, toolbarOpts);
         this.editor =  this.createEditor(options);
 
-        window.editor = this.editor;
+        // Override addClass to update menus
+        var _addClass = wysi.dom.addClass,
+            _removeClass = wysi.dom.removeClass,
+            selected_menu_item = null,
+            editor = this.editor,
+            _this = this;
+
+        // Update dropdown menus
+        wysi.dom.addClass = function(el, className){
+            var $el = $(el);
+            if ($el.parent().parent('.dropdown-menu').length) {
+              selected_menu_item = $el[0];
+              _this.updateCurrentMenuText($el);
+            }
+            _addClass.apply(this, arguments);
+        };
+        wysi.dom.removeClass = function(el, className){
+            var $el = $(el);
+            if (selected_menu_item && selected_menu_item === el && className === 'wysihtml5-command-active') {
+                selected_menu_item = null;
+                _this.updateCurrentMenuText($el.parent().parent().find('a').first());
+            }
+            _removeClass.apply(this, arguments);
+        };
+
+
+        // Dynamically expand and contract editor to content size
+        var getRange = function(iframe) {
+            var rng, win = iframe.contentWindow,
+                doc = win.document,
+                sel = win.getSelection && win.getSelection();
+            if (sel && sel.getRangeAt && sel.rangeCount) {
+                rng = sel.getRangeAt(0);
+            } else if (doc.selection && doc.selection.createRange) {
+                rng = doc.selection.createRange();
+            }
+            return rng && rng.endContainer || null;
+        };
+        editor.on('load', function(){
+            if (typeof($('body')[0].scrollHeight) !== 'undefined' && editor.composer) {
+                var $iframe = $(editor.composer.iframe),
+                    $body = $iframe.contents().find('body'),
+                    minHeight = $iframe.height(),
+                    height = null,
+                    scrollHeight = null;
+
+                editor.resize = function(e){
+                    if (!e instanceof $.Event)
+                      e = $.Event('images_loaded');
+                    var $range = $(getRange($iframe[0]));
+                    if ($range.length && $range[0].nodeType === 3)
+                      $range = $range.parent(); // Use parent of text node
+
+                    // Check for DELETE
+                    if (e.type === 'keyup' && (e.keyCode === wysi.BACKSPACE_KEY || e.keyCode === wysi.DELETE_KEY)) {
+                        $range.nextAll().find('br:only-child').parent().remove();
+                        $iframe.height(minHeight); // Force recalc of scrollHeight
+                    }
+
+                    height = $iframe.height();
+                    scrollHeight = $body[0].scrollHeight;
+                    if ($body[0].scrollHeight > minHeight && height < scrollHeight) {
+                        // Reset height
+                        $iframe.height(scrollHeight);
+
+                        // Only scroll if cursor is at the bottom and user is typing
+                        if ((e.type === 'keyup' || e.type === 'paste') && !$range.next().length) {
+                            $.scrollTo($(window).scrollTop() +  scrollHeight - height);
+                        }
+                    }
+                }
+
+                $body.on('keyup', _.debounce(editor.resize, 300));
+                $body.on('blur focus', editor.resize);
+                $body.on('paste', function(e){
+                  imagesLoaded($iframe[0], editor.resize);
+                  editor.resize(e);
+                });
+            }
+        });
 
         $('iframe.wysihtml5-sandbox').each(function(i, el){
             $(el.contentWindow).off('focus.wysihtml5').on({
@@ -156,7 +235,7 @@
 
         createEditor: function(options) {
             options = options || {};
-            
+
             // Add the toolbar to a clone of the options object so multiple instances
             // of the WYISYWG don't break because "toolbar" is already defined
             options = $.extend(true, {}, options);
@@ -214,20 +293,20 @@
             }
 
             toolbar.find("a[data-wysihtml5-command='formatBlock']").click(function(e) {
-                var target = e.target || e.srcElement;
-                var el = $(target);
-                self.toolbar.find('.current-font').text(el.html());
+                self.updateCurrentMenuText($(e.target || e.srcElement));
             });
 
             toolbar.find("a[data-wysihtml5-command='foreColor']").click(function(e) {
-                var target = e.target || e.srcElement;
-                var el = $(target);
-                self.toolbar.find('.current-color').text(el.html());
+                self.updateCurrentMenuText($(e.target || e.srcElement));
             });
 
             this.el.before(toolbar);
 
             return toolbar;
+        },
+
+        updateCurrentMenuText: function($elem) {
+          $elem.parent().parent().parent().find('.dropdown-toggle span').text($elem.text());
         },
 
         initHtml: function(toolbar) {
@@ -254,6 +333,7 @@
                   caretBookmark = null;
                 }
                 self.editor.composer.commands.exec("insertImage", url);
+                $(self.editor.currentView.element).imagesLoaded().done(self.editor.resize);
             };
 
             urlInput.keypress(function(e) {
@@ -388,7 +468,7 @@
             return methods.init.apply( this, arguments );
         } else {
             $.error( 'Method ' +  method + ' does not exist on jQuery.wysihtml5' );
-        }    
+        }
     };
 
     $.fn.wysihtml5.Constructor = Wysihtml5;
@@ -397,11 +477,11 @@
         "font-styles": true,
         "color": true,
         "emphasis": true,
-        "lists": true,
-        "html": false,
         "link": true,
+        "lists": true,
         "image": true,
-        events: {},
+        "html": true,
+        "useLineBreaks": false,
         parserRules: {
             classes: {
                 // (path_to_project/lib/css/wysiwyg-color.css)
@@ -453,7 +533,7 @@
                     }
                 },
                 "span": 1,
-                "div": 1,
+                "p": 1,
                 // to allow save and edit files with code tag hacks
                 "code": 1,
                 "pre": 1

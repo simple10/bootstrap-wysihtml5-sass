@@ -1,6 +1,6 @@
 {
     "name": "bootstrap-wysihtml5-sass",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "main": ["src/bootstrap-wysihtml5.scss", "src/bootstrap-wysihtml5.js"],
     "dependencies": {
         "wysihtml5": "~0.4.0pre"

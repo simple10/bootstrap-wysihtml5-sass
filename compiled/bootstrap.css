@@ -1,4 +1,4 @@
-/* bootstrap-wysihtml5-sass v0.0.4 by @simple10 */
+/* bootstrap-wysihtml5-sass v0.0.5 by @simple10 */
 /*!
  * Bootstrap v3.0.0
  *
@@ -1429,7 +1429,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
     outline: 0;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
-  .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+  .form-control[disabled], .wysihtml5-command-active:not(.btn), .wysihtml5-action-active:not(.btn), .form-control[readonly], fieldset[disabled] .form-control {
     cursor: not-allowed;
     background-color: #eeeeee; }
 
@@ -1657,7 +1657,7 @@ textarea.input-lg, .input-group-lg > textarea.form-control,
   .btn:hover, .btn:focus {
     color: #333333;
     text-decoration: none; }
-  .btn:active, ul.wysihtml5-commands-active, .wysihtml5-action-active, .btn.active {
+  .btn:active, .wysihtml5-command-active.btn, .wysihtml5-action-active.btn, .btn.active {
     outline: 0;
     background-image: none;
     -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
@@ -2611,12 +2611,12 @@ input[type="button"].btn-block {
   .btn-group-vertical > .btn {
     position: relative;
     float: left; }
-    .btn-group > .btn:hover, .btn-group > .btn:focus, .btn-group > .btn:active, .btn-group > ul.wysihtml5-commands-active, .btn-group > .wysihtml5-action-active, .btn-group > .btn.active,
+    .btn-group > .btn:hover, .btn-group > .btn:focus, .btn-group > .btn:active, .btn-group > .wysihtml5-command-active.btn, .btn-group > .wysihtml5-action-active.btn, .btn-group > .btn.active,
     .btn-group-vertical > .btn:hover,
     .btn-group-vertical > .btn:focus,
     .btn-group-vertical > .btn:active,
-    .btn-group-vertical > ul.wysihtml5-commands-active,
-    .btn-group-vertical > .wysihtml5-action-active,
+    .btn-group-vertical > .wysihtml5-command-active.btn,
+    .btn-group-vertical > .wysihtml5-action-active.btn,
     .btn-group-vertical > .btn.active {
       z-index: 2; }
     .btn-group > .btn:focus,
@@ -2840,7 +2840,7 @@ input[type="button"].btn-block {
   position: relative; }
   .input-group-btn > .btn + .btn {
     margin-left: -4px; }
-  .input-group-btn > .btn:hover, .input-group-btn > .btn:active, .input-group-btn > ul.wysihtml5-commands-active, .input-group-btn > .wysihtml5-action-active {
+  .input-group-btn > .btn:hover, .input-group-btn > .btn:active, .input-group-btn > .wysihtml5-command-active.btn, .input-group-btn > .wysihtml5-action-active.btn {
     z-index: 2; }
 
 .nav {
