@@ -11,7 +11,7 @@ Bootstrap-wysihtml5-sass is a [Twitter Bootstrap 3](http://getbootstrap.com/) + 
 * **Dynamic resize**. Resize iframe on image inserting, typing, deleting, pasting.
 Intelligently scroll to keep editor in view.
 * **Dynamic menu updating**. Display current block style and color in drop down menu.
-* **Added dependencies**. imagesLoaded.js and jquery.scrollTo.js
+* **Added dependency** imagesLoaded.js
 
 
 ## Project Goals:
@@ -31,7 +31,6 @@ src/bootstrap-wysihtml5.js
 src/locales/*
 lib/js/wysihtml5-0.4.0pre.js
 lib/js/imagesloaded.js
-lib/js/jquery.scrollTo.js
 lib/js/underscore.js
 # Copy to => vendors/assets/javascripts
 ```
@@ -52,7 +51,6 @@ src/bootstrap-wysihtml5.scss
 # app/assets/javascripts/application.coffee
 #= require underscore
 #= require imagesloaded
-#= require jquery.scrollTo
 #= require wysihtml5
 #= require bootstrap-wysihtml5
 ```
@@ -88,7 +86,6 @@ src/bootstrap-wysihtml5.js
 src/locales/*
 lib/js/wysihtml5-0.4.0pre.js
 lib/js/imagesloaded.js
-lib/js/jquery.scrollTo.js
 lib/js/underscore.js
 src/bootstrap-wysihtml5.scss
 src/wysihtml5-styles.scss
