@@ -1,9 +1,17 @@
 # Overview
 
-Bootstrap-wysihtml5-sass is a [Twitter Bootstrap 3](http://getbootstrap.com/) + [Sass](http://sass-lang.com/) port of [bootstrap-wysihtml5](http://jhollingworth.github.com/bootstrap-wysihtml5/).
+Bootstrap-wysihtml5-sass is a [Twitter Bootstrap 3](http://getbootstrap.com/) + [Sass](http://sass-lang.com/) port of [jhollingworth/bootstrap-wysihtml5](http://jhollingworth.github.com/bootstrap-wysihtml5/).
 
-**[Demo](http://jhollingworth.github.io/bootstrap-wysihtml5/)** of original bootstrap-wysihtml5 with
-Bootstrap 2. This project uses Bootstrap 3 and fixes several outstanding bugs of bootstrap-wysihtml5.
+## [Demo](http://simple10.github.io/bootstrap-wysihtml5-sass/)
+
+## Changelog
+
+[Oct 30, 2013]
+
+* **Dynamic resize**. Resize iframe on image inserting, typing, deleting, pasting.
+Intelligently scroll to keep editor in view.
+* **Dynamic menu updating**. Display current block style and color in drop down menu.
+* **Added dependencies**. imagesLoaded.js and jquery.scrollTo.js
 
 
 ## Project Goals:
@@ -20,10 +28,16 @@ Bootstrap 2. This project uses Bootstrap 3 and fixes several outstanding bugs of
 
 ```bash
 src/bootstrap-wysihtml5.js
-src/locales
+src/locales/*
 lib/js/wysihtml5-0.4.0pre.js
+lib/js/imagesloaded.js
+lib/js/jquery.scrollTo.js
+lib/js/underscore.js
 # Copy to => vendors/assets/javascripts
 ```
+
+Note that underscore is optional. Simply replace references to _.debounce with
+another debounce function in bootstrap-wysihtml5.js.
 
 [2] Copy stylesheets
 
@@ -36,6 +50,9 @@ src/bootstrap-wysihtml5.scss
 
 ```coffeescript
 # app/assets/javascripts/application.coffee
+#= require underscore
+#= require imagesloaded
+#= require jquery.scrollTo
 #= require wysihtml5
 #= require bootstrap-wysihtml5
 ```
@@ -67,12 +84,17 @@ $('textarea.wysihtml5').wysihtml5({
 Copy the following files to your project:
 
 ```
+src/bootstrap-wysihtml5.js
+src/locales/*
 lib/js/wysihtml5-0.4.0pre.js
-src/bootstrap-wysihtml.js
+lib/js/imagesloaded.js
+lib/js/jquery.scrollTo.js
+lib/js/underscore.js
 src/bootstrap-wysihtml5.scss
 src/wysihtml5-styles.scss
-src/locales/*
 ```
+
+Compile sass files as needed or use precompiled versions in [/compiled/](https://github.com/simple10/bootstrap-wysihtml5-sass/tree/master/compiled).
 
 Initialize the editor:
 
