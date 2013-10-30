@@ -137,6 +137,7 @@
         }
         this.toolbar = this.createToolbar(el, toolbarOpts);
         this.editor =  this.createEditor(options);
+
         // Override addClass to update menus
         var _addClass = wysi.dom.addClass,
             _removeClass = wysi.dom.removeClass,
@@ -176,7 +177,7 @@
             return rng && rng.endContainer || null;
         };
         editor.on('load', function(){
-            if (typeof($('body')[0].scrollHeight) !== 'undefined') {
+            if (typeof($('body')[0].scrollHeight) !== 'undefined' && editor.composer) {
                 var $iframe = $(editor.composer.iframe),
                     $body = $iframe.contents().find('body'),
                     minHeight = $iframe.height(),

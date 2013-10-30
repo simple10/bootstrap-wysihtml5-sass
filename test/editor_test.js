@@ -168,6 +168,7 @@ if (wysihtml5.browser.supported()) {
        }
       }
     });
+    var editor = $(this.textareaElement).data('wysihtml5').editor;
     editor.observe("load", function() {
       equal($('form .wysihtml5-toolbar').length, 1, 'Toolbar is showing')
       equal($('form .wysihtml5-toolbar .custom_image').length, 1, 'Custom image template works')
