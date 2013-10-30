@@ -1429,7 +1429,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
     outline: 0;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
-  .form-control[disabled], .wysihtml5-command-active:not(.btn), .wysihtml5-action-active:not(.btn), .form-control[readonly], fieldset[disabled] .form-control {
+  .form-control[disabled], ul.wysihtml5-toolbar .wysihtml5-command-active:not(.btn), ul.wysihtml5-toolbar .wysihtml5-action-active:not(.btn), .form-control[readonly], fieldset[disabled] .form-control {
     cursor: not-allowed;
     background-color: #eeeeee; }
 
@@ -1657,7 +1657,7 @@ textarea.input-lg, .input-group-lg > textarea.form-control,
   .btn:hover, .btn:focus {
     color: #333333;
     text-decoration: none; }
-  .btn:active, .wysihtml5-command-active.btn, .wysihtml5-action-active.btn, .btn.active {
+  .btn:active, ul.wysihtml5-toolbar .wysihtml5-command-active.btn, ul.wysihtml5-toolbar .wysihtml5-action-active.btn, .btn.active {
     outline: 0;
     background-image: none;
     -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
@@ -2611,12 +2611,12 @@ input[type="button"].btn-block {
   .btn-group-vertical > .btn {
     position: relative;
     float: left; }
-    .btn-group > .btn:hover, .btn-group > .btn:focus, .btn-group > .btn:active, .btn-group > .wysihtml5-command-active.btn, .btn-group > .wysihtml5-action-active.btn, .btn-group > .btn.active,
+    .btn-group > .btn:hover, .btn-group > .btn:focus, .btn-group > .btn:active, ul.wysihtml5-toolbar .btn-group > .wysihtml5-command-active.btn, ul.wysihtml5-toolbar .btn-group > .wysihtml5-action-active.btn, .btn-group > .btn.active,
     .btn-group-vertical > .btn:hover,
     .btn-group-vertical > .btn:focus,
     .btn-group-vertical > .btn:active,
-    .btn-group-vertical > .wysihtml5-command-active.btn,
-    .btn-group-vertical > .wysihtml5-action-active.btn,
+    ul.wysihtml5-toolbar .btn-group-vertical > .wysihtml5-command-active.btn,
+    ul.wysihtml5-toolbar .btn-group-vertical > .wysihtml5-action-active.btn,
     .btn-group-vertical > .btn.active {
       z-index: 2; }
     .btn-group > .btn:focus,
@@ -2840,7 +2840,7 @@ input[type="button"].btn-block {
   position: relative; }
   .input-group-btn > .btn + .btn {
     margin-left: -4px; }
-  .input-group-btn > .btn:hover, .input-group-btn > .btn:active, .input-group-btn > .wysihtml5-command-active.btn, .input-group-btn > .wysihtml5-action-active.btn {
+  .input-group-btn > .btn:hover, .input-group-btn > .btn:active, ul.wysihtml5-toolbar .input-group-btn > .wysihtml5-command-active.btn, ul.wysihtml5-toolbar .input-group-btn > .wysihtml5-action-active.btn {
     z-index: 2; }
 
 .nav {
@@ -4903,71 +4903,55 @@ ul.wysihtml5-toolbar {
   margin: 0;
   padding: 0;
   display: block; }
-
-ul.wysihtml5-toolbar::after {
-  clear: both;
-  display: table;
-  content: ""; }
-
-ul.wysihtml5-toolbar > li {
-  float: left;
-  display: list-item;
-  list-style: none;
-  margin: 0 5px 10px 0; }
-
-ul.wysihtml5-toolbar a[data-wysihtml5-command=bold] {
-  font-weight: bold; }
-
-ul.wysihtml5-toolbar a[data-wysihtml5-command=italic] {
-  font-style: italic; }
-
-ul.wysihtml5-toolbar a[data-wysihtml5-command=underline] {
-  text-decoration: underline; }
+  ul.wysihtml5-toolbar::after {
+    clear: both;
+    display: table;
+    content: ""; }
+  ul.wysihtml5-toolbar > li {
+    float: left;
+    display: list-item;
+    list-style: none;
+    margin: 0 5px 10px 0; }
+  ul.wysihtml5-toolbar a.btn {
+    line-height: 1.57143; }
+  ul.wysihtml5-toolbar a[data-wysihtml5-command=bold] {
+    font-weight: bold; }
+  ul.wysihtml5-toolbar a[data-wysihtml5-command=italic] {
+    font-style: italic; }
+  ul.wysihtml5-toolbar a[data-wysihtml5-command=underline] {
+    text-decoration: underline; }
+  ul.wysihtml5-toolbar div.wysihtml5-colors {
+    display: block;
+    width: 50px;
+    height: 20px;
+    margin-top: 2px;
+    margin-left: 5px;
+    position: absolute;
+    pointer-events: none; }
+  ul.wysihtml5-toolbar a.wysihtml5-colors-title {
+    padding-left: 70px; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="black"] {
+    background: black !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="silver"] {
+    background: silver !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="gray"] {
+    background: gray !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="maroon"] {
+    background: maroon !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="red"] {
+    background: red !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="purple"] {
+    background: purple !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="green"] {
+    background: green !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="olive"] {
+    background: olive !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="navy"] {
+    background: navy !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="blue"] {
+    background: blue !important; }
+  ul.wysihtml5-toolbar div[data-wysihtml5-command-value="orange"] {
+    background: orange !important; }
 
 ul.wysihtml5-commands-disabled .dropdown-menu {
   display: none !important; }
-
-ul.wysihtml5-toolbar div.wysihtml5-colors {
-  display: block;
-  width: 50px;
-  height: 20px;
-  margin-top: 2px;
-  margin-left: 5px;
-  position: absolute;
-  pointer-events: none; }
-
-ul.wysihtml5-toolbar a.wysihtml5-colors-title {
-  padding-left: 70px; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="black"] {
-  background: black !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="silver"] {
-  background: silver !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="gray"] {
-  background: gray !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="maroon"] {
-  background: maroon !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="red"] {
-  background: red !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="purple"] {
-  background: purple !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="green"] {
-  background: green !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="olive"] {
-  background: olive !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="navy"] {
-  background: navy !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="blue"] {
-  background: blue !important; }
-
-ul.wysihtml5-toolbar div[data-wysihtml5-command-value="orange"] {
-  background: orange !important; }
