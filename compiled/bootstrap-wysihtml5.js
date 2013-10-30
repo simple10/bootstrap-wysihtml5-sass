@@ -143,7 +143,6 @@
         var _addClass = wysi.dom.addClass,
             _removeClass = wysi.dom.removeClass,
             selected_menu_item = null,
-            editor = this.editor,
             _this = this;
 
         // Update dropdown menus
@@ -164,61 +163,7 @@
             _removeClass.apply(this, arguments);
         };
 
-
-        // Dynamically expand and contract editor to content size
-        var getRange = function(iframe) {
-            var rng, win = iframe.contentWindow,
-                doc = win.document,
-                sel = win.getSelection && win.getSelection();
-            if (sel && sel.getRangeAt && sel.rangeCount) {
-                rng = sel.getRangeAt(0);
-            } else if (doc.selection && doc.selection.createRange) {
-                rng = doc.selection.createRange();
-            }
-            return rng && rng.endContainer || null;
-        };
-        editor.on('load', function(){
-            if (typeof($('body')[0].scrollHeight) !== 'undefined' && editor.composer) {
-                var $iframe = $(editor.composer.iframe),
-                    $body = $iframe.contents().find('body'),
-                    minHeight = $iframe.height(),
-                    height = null,
-                    scrollHeight = null;
-
-                editor.resize = function(e){
-                    if (!e instanceof $.Event)
-                      e = $.Event('images_loaded');
-                    var $range = $(getRange($iframe[0]));
-                    if ($range.length && $range[0].nodeType === 3)
-                      $range = $range.parent(); // Use parent of text node
-
-                    // Check for DELETE
-                    if (e.type === 'keyup' && (e.keyCode === wysi.BACKSPACE_KEY || e.keyCode === wysi.DELETE_KEY)) {
-                        $range.nextAll().find('br:only-child').parent().remove();
-                        $iframe.height(minHeight); // Force recalc of scrollHeight
-                    }
-
-                    height = $iframe.height();
-                    scrollHeight = $body[0].scrollHeight;
-                    if ($body[0].scrollHeight > minHeight && height < scrollHeight) {
-                        // Reset height
-                        $iframe.height(scrollHeight);
-
-                        // Only scroll if cursor is at the bottom and user is typing
-                        if ((e.type === 'keyup' || e.type === 'paste') && !$range.next().length) {
-                            $.scrollTo($(window).scrollTop() +  scrollHeight - height);
-                        }
-                    }
-                }
-
-                $body.on('keyup', _.debounce(editor.resize, 300));
-                $body.on('blur focus', editor.resize);
-                $body.on('paste', function(e){
-                  imagesLoaded($iframe[0], editor.resize);
-                  editor.resize(e);
-                });
-            }
-        });
+        this.editor.on('load', $.proxy(function(){this.initAutoResize(options)}, this));
 
         $('iframe.wysihtml5-sandbox').each(function(i, el){
             $(el.contentWindow).off('focus.wysihtml5').on({
@@ -305,10 +250,6 @@
             return toolbar;
         },
 
-        updateCurrentMenuText: function($elem) {
-          $elem.parent().parent().parent().find('.dropdown-toggle span').text($elem.text());
-        },
-
         initHtml: function(toolbar) {
             var changeViewSelector = "a[data-wysihtml5-action='change_view']";
             toolbar.find(changeViewSelector).click(function(e) {
@@ -333,7 +274,7 @@
                   caretBookmark = null;
                 }
                 self.editor.composer.commands.exec("insertImage", url);
-                $(self.editor.currentView.element).imagesLoaded().done(self.editor.resize);
+                $(self.editor.currentView.element).imagesLoaded().done($.proxy(self.resize, self));
             };
 
             urlInput.keypress(function(e) {
@@ -431,6 +372,111 @@
                     return true;
                 }
             });
+        },
+
+        updateCurrentMenuText: function($elem) {
+            $elem.parent().parent().parent().find('.dropdown-toggle span').text($elem.text());
+        },
+
+        getScrollable: function(elem){
+            var isWin = !elem.nodeName || $.inArray( elem.nodeName.toLowerCase(), ['iframe','#document','html','body'] ) != -1;
+            if (!isWin)
+                return elem;
+            var doc = (elem.contentWindow || elem).document || elem.ownerDocument || elem;
+            return /webkit/i.test(navigator.userAgent) || doc.compatMode == 'BackCompat' ?
+                doc.body :
+                doc.documentElement;
+        },
+
+        // Dynamically expand and contract editor to content size
+        getRange: function(iframe) {
+            var rng, win = iframe.contentWindow,
+                doc = win.document,
+                sel = win.getSelection && win.getSelection();
+            if (sel && sel.getRangeAt && sel.rangeCount) {
+                rng = sel.getRangeAt(0);
+            } else if (doc.selection && doc.selection.createRange) {
+                rng = doc.selection.createRange();
+            }
+            return rng && rng.endContainer || null;
+        },
+
+        initAutoResize: function(options) {
+            if (typeof($('body')[0].scrollHeight) === 'undefined' || !this.editor.composer)
+                return false;
+            options = options || {};
+
+            var c, resizeFunc = $.proxy(this.resize, this);
+
+            // Cache vars for performance
+            c = this._resize = {
+                options: options || {}
+            };
+
+            c.$iframe = $(this.editor.composer.iframe),
+            c.$body = c.$iframe.contents().find('body'),
+            c.minHeight = c.$iframe.height(),
+            c.$scrollElem = $(this.getScrollable(window)),
+            c.scrollThreshold = parseInt(c.options.scrollThreshold) || 0;
+            c.topPadding = options.paddingTop || ((parseInt(c.$scrollElem.css('padding-top')) || 0) + 30);
+
+            c.$body.on('keyup', _.debounce(resizeFunc, 300));
+            c.$body.on('blur focus', resizeFunc);
+            c.$body.on('paste', function(evt){
+                imagesLoaded(c.$iframe[0], resizeFunc);
+                resizeFunc(evt);
+            });
+            imagesLoaded(c.$iframe[0], resizeFunc);
+            this.resize($.Event('load'));
+        },
+
+        resize: function(evt) {
+            // Delay resize to make sure dom has updated
+            if (evt instanceof imagesLoaded)
+                return setTimeout($.proxy(function(){this.resize($.Event('images_loaded'));}, this), 20);
+
+            var c = this._resize,
+                $range = $(this.getRange(c.$iframe[0])),
+                delHeight, height, scrollHeight;
+
+            if ($range.length && $range[0].nodeType === 3)
+              $range = $range.parent(); // Use parent of text node
+
+            // Check for DELETE
+            if (evt.type === 'keyup' && (evt.keyCode === wysi.BACKSPACE_KEY || evt.keyCode === wysi.DELETE_KEY)) {
+                $range.nextAll().find('br:only-child').parent().remove();
+                delHeight = c.$iframe.height();
+                c.$iframe.height(c.minHeight); // Force recalc of scrollHeight
+            }
+
+            height = c.$iframe.height();
+            scrollHeight = c.$body[0].scrollHeight;
+
+            // Check if height reset is needed
+            if (scrollHeight > c.minHeight && height < scrollHeight) {
+                // Reset height
+                c.$iframe.height(scrollHeight + 15);
+
+                // Only scroll if cursor is at the bottom and user is typing
+                var seHeight = c.$scrollElem.height(),
+                    seTop = c.$scrollElem.scrollTop(),
+                    raTop = $range.length && $range.offset().top || 0,
+                    fTop = c.$iframe.offset().top,
+                    belowthefold = (seHeight + seTop) < (fTop + raTop),
+                    abovethetop = seTop > fTop + scrollHeight - c.topPadding,
+                    newTop = seTop;
+
+                // Scroll up if deleting and caret is above viewport
+                if (delHeight && abovethetop) {
+                    newTop = seTop + scrollHeight - delHeight;
+                // Scroll down if caret is below viewport or user is interacting with the editor
+                } else if (belowthefold || (!delHeight && (evt.type === 'keyup' || evt.type === 'paste'))) {
+                    newTop = seTop + scrollHeight - height;
+                }
+                // Only scroll if needed
+                if (Math.abs(seTop - newTop) > c.scrollThreshold)
+                    c.$scrollElem.scrollTop(newTop);
+            }
         }
     };
 
@@ -482,6 +528,7 @@
         "image": true,
         "html": true,
         "useLineBreaks": false,
+        "scrollThreshold": 5,
         parserRules: {
             classes: {
                 // (path_to_project/lib/css/wysiwyg-color.css)
