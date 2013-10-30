@@ -6,7 +6,7 @@
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown'>" +
               "<a class='btn btn-default btn" + size + " dropdown-toggle' data-toggle='dropdown' href='#' tabindex='-1'>" +
-              "<i class='glyphicon glyphicon-font'></i>&nbsp;<span class='current-font'>" + locale.font_styles.normal + "</span>&nbsp;<b class='caret'></b>" +
+              "<i class='glyphicon glyphicon-font'></i>&nbsp;<span>" + locale.font_styles.normal + "</span>&nbsp;<b class='caret'></b>" +
               "</a>" +
               "<ul class='dropdown-menu'>" +
                 "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='p'>" + locale.font_styles.normal + "</a></li>" +
@@ -105,7 +105,7 @@
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown'>" +
               "<a class='btn btn-default dropdown-toggle" + size + "' data-toggle='dropdown' href='#' tabindex='-1'>" +
-                "<span class='current-color'>" + locale.colours.black + "</span>&nbsp;<b class='caret'></b>" +
+                "<span>" + locale.colours.black + "</span>&nbsp;<b class='caret'></b>" +
               "</a>" +
               "<ul class='dropdown-menu'>" +
                 "<li><div class='wysihtml5-colors' data-wysihtml5-command-value='black'></div><a class='wysihtml5-colors-title' data-wysihtml5-command='foreColor' data-wysihtml5-command-value='black'>" + locale.colours.black + "</a></li>" +
@@ -137,6 +137,31 @@
         }
         this.toolbar = this.createToolbar(el, toolbarOpts);
         this.editor =  this.createEditor(options);
+        // Override addClass to update menus
+        var _addClass = wysi.dom.addClass,
+            _removeClass = wysi.dom.removeClass,
+            selected_menu_item = null,
+            editor = this.editor,
+            _this = this;
+
+        // Update dropdown menus
+        wysi.dom.addClass = function(el, className){
+            var $el = $(el);
+            if ($el.parent().parent('.dropdown-menu').length) {
+              selected_menu_item = $el[0];
+              _this.updateCurrentMenuText($el);
+            }
+            _addClass.apply(this, arguments);
+        };
+        wysi.dom.removeClass = function(el, className){
+            var $el = $(el);
+            if (selected_menu_item && selected_menu_item === el && className === 'wysihtml5-command-active') {
+                selected_menu_item = null;
+                _this.updateCurrentMenuText($el.parent().parent().find('a').first());
+            }
+            _removeClass.apply(this, arguments);
+        };
+
 
         window.editor = this.editor;
 
@@ -213,20 +238,20 @@
             }
 
             toolbar.find("a[data-wysihtml5-command='formatBlock']").click(function(e) {
-                var target = e.target || e.srcElement;
-                var el = $(target);
-                self.toolbar.find('.current-font').text(el.html());
+                self.updateCurrentMenuText($(e.target || e.srcElement));
             });
 
             toolbar.find("a[data-wysihtml5-command='foreColor']").click(function(e) {
-                var target = e.target || e.srcElement;
-                var el = $(target);
-                self.toolbar.find('.current-color').text(el.html());
+                self.updateCurrentMenuText($(e.target || e.srcElement));
             });
 
             this.el.before(toolbar);
 
             return toolbar;
+        },
+
+        updateCurrentMenuText: function($elem) {
+          $elem.parent().parent().parent().find('.dropdown-toggle span').text($elem.text());
         },
 
         initHtml: function(toolbar) {
