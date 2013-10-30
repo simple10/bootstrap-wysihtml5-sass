@@ -9,7 +9,7 @@
               "<i class='glyphicon glyphicon-font'></i>&nbsp;<span class='current-font'>" + locale.font_styles.normal + "</span>&nbsp;<b class='caret'></b>" +
               "</a>" +
               "<ul class='dropdown-menu'>" +
-                "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='div'>" + locale.font_styles.normal + "</a></li>" +
+                "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='p'>" + locale.font_styles.normal + "</a></li>" +
                 "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='h1'>" + locale.font_styles.h1 + "</a></li>" +
                 "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='h2'>" + locale.font_styles.h2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='formatBlock' data-wysihtml5-command-value='h3'>" + locale.font_styles.h3 + "</a></li>" +
@@ -401,6 +401,7 @@
         "image": true,
         "html": true,
         events: {},
+        "useLineBreaks": false,
         parserRules: {
             classes: {
                 // (path_to_project/lib/css/wysiwyg-color.css)
@@ -452,7 +453,7 @@
                     }
                 },
                 "span": 1,
-                "div": 1,
+                "p": 1,
                 // to allow save and edit files with code tag hacks
                 "code": 1,
                 "pre": 1
