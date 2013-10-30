@@ -164,6 +164,60 @@
 
 
         window.editor = this.editor;
+        // Dynamically expand and contract editor to content size
+        var getRange = function(iframe) {
+            var rng, win = iframe.contentWindow,
+                doc = win.document,
+                sel = win.getSelection && win.getSelection();
+            if (sel && sel.getRangeAt && sel.rangeCount) {
+                rng = sel.getRangeAt(0);
+            } else if (doc.selection && doc.selection.createRange) {
+                rng = doc.selection.createRange();
+            }
+            return rng && rng.endContainer || null;
+        };
+        editor.on('load', function(){
+            if (typeof($('body')[0].scrollHeight) !== 'undefined') {
+                var $iframe = $(editor.composer.iframe),
+                    $body = $iframe.contents().find('body'),
+                    minHeight = $iframe.height(),
+                    height = null,
+                    scrollHeight = null;
+
+                editor.resize = function(e){
+                    if (!e instanceof $.Event)
+                      e = $.Event('images_loaded');
+                    var $range = $(getRange($iframe[0]));
+                    if ($range.length && $range[0].nodeType === 3)
+                      $range = $range.parent(); // Use parent of text node
+
+                    // Check for DELETE
+                    if (e.type === 'keyup' && (e.keyCode === wysi.BACKSPACE_KEY || e.keyCode === wysi.DELETE_KEY)) {
+                        $range.nextAll().find('br:only-child').parent().remove();
+                        $iframe.height(minHeight); // Force recalc of scrollHeight
+                    }
+
+                    height = $iframe.height();
+                    scrollHeight = $body[0].scrollHeight;
+                    if ($body[0].scrollHeight > minHeight && height < scrollHeight) {
+                        // Reset height
+                        $iframe.height(scrollHeight);
+
+                        // Only scroll if cursor is at the bottom and user is typing
+                        if ((e.type === 'keyup' || e.type === 'paste') && !$range.next().length) {
+                            $.scrollTo($(window).scrollTop() +  scrollHeight - height);
+                        }
+                    }
+                }
+
+                $body.on('keyup', _.debounce(editor.resize, 300));
+                $body.on('blur focus', editor.resize);
+                $body.on('paste', function(e){
+                  imagesLoaded($iframe[0], editor.resize);
+                  editor.resize(e);
+                });
+            }
+        });
 
         $('iframe.wysihtml5-sandbox').each(function(i, el){
             $(el.contentWindow).off('focus.wysihtml5').on({
@@ -278,6 +332,7 @@
                   caretBookmark = null;
                 }
                 self.editor.composer.commands.exec("insertImage", url);
+                $(self.editor.currentView.element).imagesLoaded().done(self.editor.resize);
             };
 
             urlInput.keypress(function(e) {
