@@ -391,10 +391,16 @@
             c.$body = c.$iframe.contents().find('body'),
             c.minHeight = c.$iframe.height(),
             c.$scrollElem = $(this.getScrollable(window)),
-            c.resizeScrollThreshold = parseInt(c.options.resizeScrollThreshold) || 0;
             c.topPadding = options.paddingTop || ((parseInt(c.$scrollElem.css('padding-top')) || 0) + 30);
 
-            c.$body.on('keyup', _.debounce(resizeFunc, 300));
+            c.$iframe.addClass('wysihtml5-auto-resizable').attr('scrolling', 'no');
+            c.$body.addClass('wysihtml5-auto-resizable');
+
+            c.$body.on('keyup', _.debounce(resizeFunc, 250));
+            c.$body.on('keydown', function(evt){
+                if (evt.keyCode === wysi.ENTER_KEY)
+                    resizeFunc(evt);
+            });
             c.$body.on('blur focus', resizeFunc);
             c.$body.on('paste', function(evt){
                 imagesLoaded(c.$iframe[0], resizeFunc);
@@ -406,6 +412,10 @@
 
         isAutoResizeEnabled: function() {
             return !!this._resize;
+        },
+
+        isKeyEvent: function(evt) {
+            return evt.type === 'keyup' || evt.type === 'keydown' || evt.type === 'paste';
         },
 
         resize: function(evt) {
@@ -433,7 +443,7 @@
             // Check if height reset is needed
             if (scrollHeight > c.minHeight && height < scrollHeight) {
                 // Reset height
-                c.$iframe.height(scrollHeight + 15);
+                c.$iframe.height(scrollHeight);
 
                 // Only scroll if cursor is at the bottom and user is typing
                 var seHeight = c.$scrollElem.height(),
@@ -448,11 +458,11 @@
                 if (delHeight && abovethetop) {
                     newTop = seTop + scrollHeight - delHeight;
                 // Scroll down if caret is below viewport or user is interacting with the editor
-                } else if (belowthefold || (!delHeight && (evt.type === 'keyup' || evt.type === 'paste'))) {
+                } else if (belowthefold || !delHeight && this.isKeyEvent(evt)) {
                     newTop = seTop + scrollHeight - height;
                 }
                 // Only scroll if needed
-                if (Math.abs(seTop - newTop) > c.resizeScrollThreshold)
+                if (seTop !== newTop)
                     c.$scrollElem.scrollTop(newTop);
             }
         }
@@ -507,7 +517,6 @@
         "html": true,
         "useLineBreaks": false,
         "enableAutoResize": true,
-        "resizeScrollThreshold": 5,
         parserRules: {
             classes: {
                 // (path_to_project/lib/css/wysiwyg-color.css)
