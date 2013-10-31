@@ -361,8 +361,10 @@
 
         // Dynamically expand and contract editor to content size
         getRange: function(iframe) {
-            var rng, win = iframe.contentWindow,
-                doc = win.document,
+            var rng, win = iframe.contentWindow;
+            if (!win)
+                return null
+            var doc = win.document,
                 sel = win.getSelection && win.getSelection();
             if (sel && sel.getRangeAt && sel.rangeCount) {
                 rng = sel.getRangeAt(0);
