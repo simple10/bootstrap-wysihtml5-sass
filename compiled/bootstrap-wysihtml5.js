@@ -2,7 +2,7 @@
 !function($, wysi) {
     "use strict";
 
-    var tpl = {
+    var toolbarTemplates = {
         "font-styles": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown'>" +
@@ -125,33 +125,25 @@
         }
     };
 
-    var templates = function(key, locale, options) {
-        return tpl[key](locale, options);
-    };
-
-
     var Wysihtml5 = function(el, options) {
         this.el = el;
-        var toolbarOpts = options || defaultOptions;
-        for(var t in toolbarOpts.customTemplates) {
-          tpl[t] = toolbarOpts.customTemplates[t];
-        }
-        this.toolbar = this.createToolbar(el, toolbarOpts);
+        options = $.extend({}, options, defaultOptions);
+
+        this.toolbar = this.createToolbar(el, options);
         this.editor =  this.createEditor(options);
 
         // Override addClass to update menus
         var _addClass = wysi.dom.addClass,
             _removeClass = wysi.dom.removeClass,
             selected_menu_item = null,
-            editor = this.editor,
-            _this = this;
+            self = this;
 
         // Update dropdown menus
         wysi.dom.addClass = function(el, className){
             var $el = $(el);
             if ($el.parent().parent('.dropdown-menu').length) {
               selected_menu_item = $el[0];
-              _this.updateCurrentMenuText($el);
+              self.updateCurrentMenuText($el);
             }
             _addClass.apply(this, arguments);
         };
@@ -159,66 +151,13 @@
             var $el = $(el);
             if (selected_menu_item && selected_menu_item === el && className === 'wysihtml5-command-active') {
                 selected_menu_item = null;
-                _this.updateCurrentMenuText($el.parent().parent().find('a').first());
+                self.updateCurrentMenuText($el.parent().parent().find('a').first());
             }
             _removeClass.apply(this, arguments);
         };
 
-
-        // Dynamically expand and contract editor to content size
-        var getRange = function(iframe) {
-            var rng, win = iframe.contentWindow,
-                doc = win.document,
-                sel = win.getSelection && win.getSelection();
-            if (sel && sel.getRangeAt && sel.rangeCount) {
-                rng = sel.getRangeAt(0);
-            } else if (doc.selection && doc.selection.createRange) {
-                rng = doc.selection.createRange();
-            }
-            return rng && rng.endContainer || null;
-        };
-        editor.on('load', function(){
-            if (typeof($('body')[0].scrollHeight) !== 'undefined' && editor.composer) {
-                var $iframe = $(editor.composer.iframe),
-                    $body = $iframe.contents().find('body'),
-                    minHeight = $iframe.height(),
-                    height = null,
-                    scrollHeight = null;
-
-                editor.resize = function(e){
-                    if (!e instanceof $.Event)
-                      e = $.Event('images_loaded');
-                    var $range = $(getRange($iframe[0]));
-                    if ($range.length && $range[0].nodeType === 3)
-                      $range = $range.parent(); // Use parent of text node
-
-                    // Check for DELETE
-                    if (e.type === 'keyup' && (e.keyCode === wysi.BACKSPACE_KEY || e.keyCode === wysi.DELETE_KEY)) {
-                        $range.nextAll().find('br:only-child').parent().remove();
-                        $iframe.height(minHeight); // Force recalc of scrollHeight
-                    }
-
-                    height = $iframe.height();
-                    scrollHeight = $body[0].scrollHeight;
-                    if ($body[0].scrollHeight > minHeight && height < scrollHeight) {
-                        // Reset height
-                        $iframe.height(scrollHeight);
-
-                        // Only scroll if cursor is at the bottom and user is typing
-                        if ((e.type === 'keyup' || e.type === 'paste') && !$range.next().length) {
-                            $.scrollTo($(window).scrollTop() +  scrollHeight - height);
-                        }
-                    }
-                }
-
-                $body.on('keyup', _.debounce(editor.resize, 300));
-                $body.on('blur focus', editor.resize);
-                $body.on('paste', function(e){
-                  imagesLoaded($iframe[0], editor.resize);
-                  editor.resize(e);
-                });
-            }
-        });
+        if (options.enableAutoResize)
+            this.editor.on('load', $.proxy(function(){this.initAutoResize(options)}, this));
 
         $('iframe.wysihtml5-sandbox').each(function(i, el){
             $(el.contentWindow).off('focus.wysihtml5').on({
@@ -252,189 +191,272 @@
         },
 
         createToolbar: function(el, options) {
-            var self = this;
             var toolbar = $("<ul/>", {
                 'class' : "wysihtml5-toolbar",
                 'style': "display:none"
             });
-            var culture = options.locale || defaultOptions.locale || "en";
-            for(var key in defaultOptions) {
-                var value = false;
 
-                if(options[key] !== undefined) {
-                    if(options[key] === true) {
-                        value = true;
-                    }
-                } else {
-                    value = defaultOptions[key];
-                }
-
-                if(value === true) {
-                    toolbar.append(templates(key, locale[culture], options));
-
-                    if(key === "html") {
-                        this.initHtml(toolbar);
-                    }
-
-                    if(key === "link") {
-                        this.initInsertLink(toolbar);
-                    }
-
-                    if(key === "image") {
-                        this.initInsertImage(toolbar);
-                    }
-                }
+            // Add custom templates
+            for (var key in options.customTemplates) {
+              toolbarTemplates[key] = options.customTemplates[key];
             }
 
-            if(options.toolbar) {
-                for(key in options.toolbar) {
-                    toolbar.append(options.toolbar[key]);
-                }
+            // Build toolbar
+            for (var key in options) {
+                if (!toolbarTemplates[key])
+                    continue;
+                var tpl = toolbarTemplates[key]($.fn.wysihtml5.locale[options.locale], options);
+                toolbar.append(tpl);
+                if (this.toolbarHelpers[key])
+                    this.toolbarHelpers[key](toolbar, this);
             }
 
-            toolbar.find("a[data-wysihtml5-command='formatBlock']").click(function(e) {
-                self.updateCurrentMenuText($(e.target || e.srcElement));
-            });
+            // Special handling for drop down menus
+            toolbar.find(".dropdown").find("a[data-wysihtml5-command]").click($.proxy(function(e) {
+                this.updateCurrentMenuText($(e.target || e.srcElement));
+            }, this));
 
-            toolbar.find("a[data-wysihtml5-command='foreColor']").click(function(e) {
-                self.updateCurrentMenuText($(e.target || e.srcElement));
-            });
-
-            this.el.before(toolbar);
+            // Attach to DOM
+            options.toolbar && toolbar.appendTo(options.toolbar) || this.el.before(toolbar);
 
             return toolbar;
         },
 
-        updateCurrentMenuText: function($elem) {
-          $elem.parent().parent().parent().find('.dropdown-toggle span').text($elem.text());
-        },
-
-        initHtml: function(toolbar) {
-            var changeViewSelector = "a[data-wysihtml5-action='change_view']";
-            toolbar.find(changeViewSelector).click(function(e) {
-                toolbar.find('a.btn').not(changeViewSelector).toggleClass('disabled');
-            });
-        },
-
-        initInsertImage: function(toolbar) {
-            var self = this;
-            var insertImageModal = toolbar.find('.bootstrap-wysihtml5-insert-image-modal');
-            var urlInput = insertImageModal.find('.bootstrap-wysihtml5-insert-image-url');
-            var insertButton = insertImageModal.find('a.btn-primary');
-            var initialValue = urlInput.val();
-            var caretBookmark;
-
-            var insertImage = function() {
-                var url = urlInput.val();
-                urlInput.val(initialValue);
-                self.editor.currentView.element.focus();
-                if (caretBookmark) {
-                  self.editor.composer.selection.setBookmark(caretBookmark);
-                  caretBookmark = null;
-                }
-                self.editor.composer.commands.exec("insertImage", url);
-                $(self.editor.currentView.element).imagesLoaded().done(self.editor.resize);
-            };
-
-            urlInput.keypress(function(e) {
-                if(e.which == 13) {
-                    insertImage();
-                    insertImageModal.modal('hide');
-                }
-            });
-
-            insertButton.click(insertImage);
-
-            insertImageModal.on('shown', function() {
-                urlInput.focus();
-            });
-
-            insertImageModal.on('hide', function() {
-                self.editor.currentView.element.focus();
-            });
-
-            toolbar.find('a[data-wysihtml5-command=insertImage]').click(function() {
-                var activeButton = $(this).hasClass("wysihtml5-command-active");
-
-                if (!activeButton) {
-                    self.editor.currentView.element.focus(false);
-                    caretBookmark = self.editor.composer.selection.getBookmark();
-                    insertImageModal.appendTo('body').modal('show');
-                    insertImageModal.on('click.dismiss.modal', '[data-dismiss="modal"]', function(e) {
-                        e.stopPropagation();
-                    });
-                    return false;
-                }
-                else {
-                    return true;
-                }
-            });
-        },
-
-        initInsertLink: function(toolbar) {
-            var self = this;
-            var insertLinkModal = toolbar.find('.bootstrap-wysihtml5-insert-link-modal');
-            var urlInput = insertLinkModal.find('.bootstrap-wysihtml5-insert-link-url');
-            var targetInput = insertLinkModal.find('.bootstrap-wysihtml5-insert-link-target');
-            var insertButton = insertLinkModal.find('a.btn-primary');
-            var initialValue = urlInput.val();
-            var caretBookmark;
-
-            var insertLink = function() {
-                var url = urlInput.val();
-                urlInput.val(initialValue);
-                self.editor.currentView.element.focus();
-                if (caretBookmark) {
-                  self.editor.composer.selection.setBookmark(caretBookmark);
-                  caretBookmark = null;
-                }
-
-                var newWindow = targetInput.prop("checked");
-                self.editor.composer.commands.exec("createLink", {
-                    'href' : url,
-                    'target' : (newWindow ? '_blank' : '_self'),
-                    'rel' : (newWindow ? 'nofollow' : '')
+        toolbarHelpers: {
+            html: function(toolbar, self) {
+                var changeViewSelector = "a[data-wysihtml5-action='change_view']";
+                toolbar.find(changeViewSelector).click(function(e) {
+                    toolbar.find('a.btn').not(changeViewSelector).toggleClass('disabled');
                 });
-            };
-            var pressedEnter = false;
+            },
 
-            urlInput.keypress(function(e) {
-                if(e.which == 13) {
-                    insertLink();
-                    insertLinkModal.modal('hide');
-                }
-            });
+            image: function(toolbar, self) {
+                var insertImageModal = toolbar.find('.bootstrap-wysihtml5-insert-image-modal');
+                var urlInput = insertImageModal.find('.bootstrap-wysihtml5-insert-image-url');
+                var insertButton = insertImageModal.find('a.btn-primary');
+                var initialValue = urlInput.val();
+                var caretBookmark;
 
-            insertButton.click(insertLink);
+                var insertImage = function() {
+                    var url = urlInput.val();
+                    urlInput.val(initialValue);
+                    self.editor.currentView.element.focus();
+                    if (caretBookmark) {
+                      self.editor.composer.selection.setBookmark(caretBookmark);
+                      caretBookmark = null;
+                    }
+                    self.editor.composer.commands.exec("insertImage", url);
+                    if (self.isAutoResizeEnabled())
+                        $(self.editor.currentView.element).imagesLoaded().done($.proxy(self.resize, self));
+                };
 
-            insertLinkModal.on('shown', function() {
-                urlInput.focus();
-            });
+                urlInput.keypress(function(e) {
+                    if(e.which == 13) {
+                        insertImage();
+                        insertImageModal.modal('hide');
+                    }
+                });
 
-            insertLinkModal.on('hide', function() {
-                self.editor.currentView.element.focus();
-            });
+                insertButton.click(insertImage);
 
-            toolbar.find('a[data-wysihtml5-command=createLink]').click(function() {
-                var activeButton = $(this).hasClass("wysihtml5-command-active");
+                insertImageModal.on('shown', function() {
+                    urlInput.focus();
+                });
 
-                if (!activeButton) {
-                    self.editor.currentView.element.focus(false);
-                    caretBookmark = self.editor.composer.selection.getBookmark();
-                    insertLinkModal.appendTo('body').modal('show');
-                    insertLinkModal.on('click.dismiss.modal', '[data-dismiss="modal"]', function(e) {
-                        e.stopPropagation();
+                insertImageModal.on('hide', function() {
+                    self.editor.currentView.element.focus();
+                });
+
+                toolbar.find('a[data-wysihtml5-command=insertImage]').click(function() {
+                    var activeButton = $(this).hasClass("wysihtml5-command-active");
+
+                    if (!activeButton) {
+                        self.editor.currentView.element.focus(false);
+                        caretBookmark = self.editor.composer.selection.getBookmark();
+                        insertImageModal.appendTo('body').modal('show');
+                        insertImageModal.on('click.dismiss.modal', '[data-dismiss="modal"]', function(e) {
+                            e.stopPropagation();
+                        });
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+            },
+
+            link: function(toolbar, self) {
+                var insertLinkModal = toolbar.find('.bootstrap-wysihtml5-insert-link-modal');
+                var urlInput = insertLinkModal.find('.bootstrap-wysihtml5-insert-link-url');
+                var targetInput = insertLinkModal.find('.bootstrap-wysihtml5-insert-link-target');
+                var insertButton = insertLinkModal.find('a.btn-primary');
+                var initialValue = urlInput.val();
+                var caretBookmark;
+
+                var insertLink = function() {
+                    var url = urlInput.val();
+                    urlInput.val(initialValue);
+                    self.editor.currentView.element.focus();
+                    if (caretBookmark) {
+                      self.editor.composer.selection.setBookmark(caretBookmark);
+                      caretBookmark = null;
+                    }
+
+                    var newWindow = targetInput.prop("checked");
+                    self.editor.composer.commands.exec("createLink", {
+                        'href' : url,
+                        'target' : (newWindow ? '_blank' : '_self'),
+                        'rel' : (newWindow ? 'nofollow' : '')
                     });
-                    return false;
-                }
-                else {
-                    return true;
-                }
+                };
+                var pressedEnter = false;
+
+                urlInput.keypress(function(e) {
+                    if(e.which == 13) {
+                        insertLink();
+                        insertLinkModal.modal('hide');
+                    }
+                });
+
+                insertButton.click(insertLink);
+
+                insertLinkModal.on('shown', function() {
+                    urlInput.focus();
+                });
+
+                insertLinkModal.on('hide', function() {
+                    self.editor.currentView.element.focus();
+                });
+
+                toolbar.find('a[data-wysihtml5-command=createLink]').click(function() {
+                    var activeButton = $(this).hasClass("wysihtml5-command-active");
+
+                    if (!activeButton) {
+                        self.editor.currentView.element.focus(false);
+                        caretBookmark = self.editor.composer.selection.getBookmark();
+                        insertLinkModal.appendTo('body').modal('show');
+                        insertLinkModal.on('click.dismiss.modal', '[data-dismiss="modal"]', function(e) {
+                            e.stopPropagation();
+                        });
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                });
+            }
+        },
+
+        updateCurrentMenuText: function($elem) {
+            $elem.parent().parent().parent().find('.dropdown-toggle span').text($elem.text());
+        },
+
+        getScrollable: function(elem){
+            var isWin = !elem.nodeName || $.inArray( elem.nodeName.toLowerCase(), ['iframe','#document','html','body'] ) != -1;
+            if (!isWin)
+                return elem;
+            var doc = (elem.contentWindow || elem).document || elem.ownerDocument || elem;
+            return /webkit/i.test(navigator.userAgent) || doc.compatMode == 'BackCompat' ?
+                doc.body :
+                doc.documentElement;
+        },
+
+        // Dynamically expand and contract editor to content size
+        getRange: function(iframe) {
+            var rng, win = iframe.contentWindow,
+                doc = win.document,
+                sel = win.getSelection && win.getSelection();
+            if (sel && sel.getRangeAt && sel.rangeCount) {
+                rng = sel.getRangeAt(0);
+            } else if (doc.selection && doc.selection.createRange) {
+                rng = doc.selection.createRange();
+            }
+            return rng && rng.endContainer || null;
+        },
+
+        initAutoResize: function(options) {
+            if (typeof($('body')[0].scrollHeight) === 'undefined' || !this.editor.composer)
+                return false;
+            options = options || {};
+
+            var c, resizeFunc = $.proxy(this.resize, this);
+
+            // Cache vars for performance
+            c = this._resize = {
+                options: options || {}
+            };
+
+            c.$iframe = $(this.editor.composer.iframe),
+            c.$body = c.$iframe.contents().find('body'),
+            c.minHeight = c.$iframe.height(),
+            c.$scrollElem = $(this.getScrollable(window)),
+            c.resizeScrollThreshold = parseInt(c.options.resizeScrollThreshold) || 0;
+            c.topPadding = options.paddingTop || ((parseInt(c.$scrollElem.css('padding-top')) || 0) + 30);
+
+            c.$body.on('keyup', _.debounce(resizeFunc, 300));
+            c.$body.on('blur focus', resizeFunc);
+            c.$body.on('paste', function(evt){
+                imagesLoaded(c.$iframe[0], resizeFunc);
+                resizeFunc(evt);
             });
+            imagesLoaded(c.$iframe[0], resizeFunc);
+            this.resize($.Event('load'));
+        },
+
+        isAutoResizeEnabled: function() {
+            return !!this._resize;
+        },
+
+        resize: function(evt) {
+            // Delay resize to make sure dom has updated
+            if (evt instanceof imagesLoaded)
+                return setTimeout($.proxy(function(){this.resize($.Event('images_loaded'));}, this), 20);
+
+            var c = this._resize,
+                $range = $(this.getRange(c.$iframe[0])),
+                delHeight, height, scrollHeight;
+
+            if ($range.length && $range[0].nodeType === 3)
+              $range = $range.parent(); // Use parent of text node
+
+            // Check for DELETE
+            if (evt.type === 'keyup' && (evt.keyCode === wysi.BACKSPACE_KEY || evt.keyCode === wysi.DELETE_KEY)) {
+                $range.nextAll().find('br:only-child').parent().remove();
+                delHeight = c.$iframe.height();
+                c.$iframe.height(c.minHeight); // Force recalc of scrollHeight
+            }
+
+            height = c.$iframe.height();
+            scrollHeight = c.$body[0].scrollHeight;
+
+            // Check if height reset is needed
+            if (scrollHeight > c.minHeight && height < scrollHeight) {
+                // Reset height
+                c.$iframe.height(scrollHeight + 15);
+
+                // Only scroll if cursor is at the bottom and user is typing
+                var seHeight = c.$scrollElem.height(),
+                    seTop = c.$scrollElem.scrollTop(),
+                    raTop = $range.length && $range.offset().top || 0,
+                    fTop = c.$iframe.offset().top,
+                    belowthefold = (seHeight + seTop) < (fTop + raTop),
+                    abovethetop = seTop > fTop + scrollHeight - c.topPadding,
+                    newTop = seTop;
+
+                // Scroll up if deleting and caret is above viewport
+                if (delHeight && abovethetop) {
+                    newTop = seTop + scrollHeight - delHeight;
+                // Scroll down if caret is below viewport or user is interacting with the editor
+                } else if (belowthefold || (!delHeight && (evt.type === 'keyup' || evt.type === 'paste'))) {
+                    newTop = seTop + scrollHeight - height;
+                }
+                // Only scroll if needed
+                if (Math.abs(seTop - newTop) > c.resizeScrollThreshold)
+                    c.$scrollElem.scrollTop(newTop);
+            }
         }
     };
 
-    // these define our public api
+    // $.wysihtml5 Public API
     var methods = {
         resetDefaults: function() {
             $.fn.wysihtml5.defaultOptions = $.extend(true, {}, $.fn.wysihtml5.defaultOptionsCache);
@@ -482,6 +504,8 @@
         "image": true,
         "html": true,
         "useLineBreaks": false,
+        "enableAutoResize": false,
+        "resizeScrollThreshold": 5,
         parserRules: {
             classes: {
                 // (path_to_project/lib/css/wysiwyg-color.css)
@@ -547,7 +571,7 @@
         $.fn.wysihtml5.defaultOptionsCache = $.extend(true, {}, $.fn.wysihtml5.defaultOptions);
     }
 
-    var locale = $.fn.wysihtml5.locale = {
+    $.fn.wysihtml5.locale = {
         en: {
             font_styles: {
                 normal: "Normal text",
