@@ -126,8 +126,6 @@
 
     var Wysihtml5 = function(el, options) {
         this.el = el;
-        options = $.extend({}, options, defaultOptions);
-
         this.toolbar = this.createToolbar(el, options);
         this.editor =  this.createEditor(options);
 
