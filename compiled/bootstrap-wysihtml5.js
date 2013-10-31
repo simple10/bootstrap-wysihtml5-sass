@@ -127,8 +127,6 @@
 
     var Wysihtml5 = function(el, options) {
         this.el = el;
-        options = $.extend({}, options, defaultOptions);
-
         this.toolbar = this.createToolbar(el, options);
         this.editor =  this.createEditor(options);
 
@@ -203,7 +201,7 @@
 
             // Build toolbar
             for (var key in options) {
-                if (!toolbarTemplates[key])
+                if (!options[key] || !toolbarTemplates[key])
                     continue;
                 var tpl = toolbarTemplates[key]($.fn.wysihtml5.locale[options.locale], options);
                 toolbar.append(tpl);
@@ -470,9 +468,6 @@
 
     // these define our public api
     var methods = {
-        resetDefaults: function() {
-            $.fn.wysihtml5.defaultOptions = $.extend(true, {}, $.fn.wysihtml5.defaultOptionsCache);
-        },
         bypassDefaults: function(options) {
             return this.each(function () {
                 var $this = $(this);
@@ -507,8 +502,8 @@
 
     $.fn.wysihtml5.Constructor = Wysihtml5;
 
-    var defaultOptions = $.fn.wysihtml5.defaultOptions = {
-        "font-styles": true,
+    $.fn.wysihtml5.defaultOptions = {
+        "font-styles": false,
         "color": true,
         "emphasis": true,
         "link": true,
@@ -539,6 +534,9 @@
             },
             tags: {
                 "b":  {},
+                "strong": {
+                    "rename_tag": "b"
+                },
                 "i":  {},
                 "br": {},
                 "ol": {},
@@ -551,7 +549,7 @@
                 "h5": {},
                 "h6": {},
                 "blockquote": {},
-                "u": 1,
+                "u": {},
                 "img": {
                     "check_attributes": {
                         "width": "numbers",
@@ -562,25 +560,21 @@
                 },
                 "a":  {
                     check_attributes: {
-                        'href': "url", // important to avoid XSS
-                        'target': 'alt',
-                        'rel': 'alt'
+                        "href": "href", // important to avoid XSS
+                        "target": "alt",
+                        "rel": "alt"
                     }
                 },
-                "span": 1,
-                "p": 1,
+                "span": {},
+                "p": {},
                 // to allow save and edit files with code tag hacks
-                "code": 1,
-                "pre": 1
+                "code": {},
+                "pre": {}
             }
         },
         stylesheets: ["compiled/wysihtml5-styles.css"],
         locale: "en"
     };
-
-    if (typeof $.fn.wysihtml5.defaultOptionsCache === 'undefined') {
-        $.fn.wysihtml5.defaultOptionsCache = $.extend(true, {}, $.fn.wysihtml5.defaultOptions);
-    }
 
     $.fn.wysihtml5.locale = {
         en: {
