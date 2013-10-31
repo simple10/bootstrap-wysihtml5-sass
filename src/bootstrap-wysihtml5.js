@@ -392,9 +392,10 @@
             c.$scrollElem = $(this.getScrollable(window)),
             c.topPadding = options.paddingTop || ((parseInt(c.$scrollElem.css('padding-top')) || 0) + 30);
 
-            c.$body.on('keyup', _.debounce(resizeFunc, 300));
             c.$iframe.addClass('wysihtml5-auto-resizable').attr('scrolling', 'no');
             c.$body.addClass('wysihtml5-auto-resizable');
+
+            c.$body.on('keyup', _.debounce(resizeFunc, 250));
             c.$body.on('keydown', function(evt){
                 if (evt.keyCode === wysi.ENTER_KEY)
                     resizeFunc(evt);
