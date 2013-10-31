@@ -557,9 +557,9 @@
                 },
                 "a":  {
                     check_attributes: {
-                        'href': "url", // important to avoid XSS
-                        'target': 'alt',
-                        'rel': 'alt'
+                        "href": "href", // important to avoid XSS
+                        "target": "alt",
+                        "rel": "alt"
                     }
                 },
                 "span": {},
