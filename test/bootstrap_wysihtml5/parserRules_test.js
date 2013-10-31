@@ -74,7 +74,7 @@ if (wysihtml5.browser.supported()) {
 
       equal(editor.parse(that.colorText).toLowerCase(), that.colorText, 'classes used for font colors are allowed');
 
-      equal(editor.parse("hello <strong>foo</strong>!").toLowerCase(), "hello foo!", "<strong></strong> tags are stripped out");
+      equal(editor.parse("hello <strong>foo</strong>!").toLowerCase(), "hello <b>foo</b>!", "<strong></strong> tags are replaced with <b></b>");
 
       equal(editor.parse("hello <faketag>foo</faketag>!").toLowerCase(), "hello foo!", "unrecognized tags are stripped out");
 

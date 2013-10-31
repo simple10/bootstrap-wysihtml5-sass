@@ -533,7 +533,9 @@
             },
             tags: {
                 "b":  {},
-                "strong": {},
+                "strong": {
+                    "rename_tag": "b"
+                },
                 "i":  {},
                 "br": {},
                 "ol": {},
