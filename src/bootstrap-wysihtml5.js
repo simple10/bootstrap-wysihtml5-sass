@@ -390,7 +390,6 @@
             c.$body = c.$iframe.contents().find('body'),
             c.minHeight = c.$iframe.height(),
             c.$scrollElem = $(this.getScrollable(window)),
-            c.resizeScrollThreshold = parseInt(c.options.resizeScrollThreshold) || 0;
             c.topPadding = options.paddingTop || ((parseInt(c.$scrollElem.css('padding-top')) || 0) + 30);
 
             c.$body.on('keyup', _.debounce(resizeFunc, 300));
@@ -451,7 +450,7 @@
                     newTop = seTop + scrollHeight - height;
                 }
                 // Only scroll if needed
-                if (Math.abs(seTop - newTop) > c.resizeScrollThreshold)
+                if (seTop !== newTop)
                     c.$scrollElem.scrollTop(newTop);
             }
         }
@@ -506,7 +505,6 @@
         "html": true,
         "useLineBreaks": false,
         "enableAutoResize": true,
-        "resizeScrollThreshold": 5,
         parserRules: {
             classes: {
                 // (path_to_project/lib/css/wysiwyg-color.css)
