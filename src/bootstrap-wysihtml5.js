@@ -533,6 +533,7 @@
             },
             tags: {
                 "b":  {},
+                "strong": {},
                 "i":  {},
                 "br": {},
                 "ol": {},
@@ -545,7 +546,7 @@
                 "h5": {},
                 "h6": {},
                 "blockquote": {},
-                "u": 1,
+                "u": {},
                 "img": {
                     "check_attributes": {
                         "width": "numbers",
@@ -561,11 +562,11 @@
                         'rel': 'alt'
                     }
                 },
-                "span": 1,
-                "p": 1,
+                "span": {},
+                "p": {},
                 // to allow save and edit files with code tag hacks
-                "code": 1,
-                "pre": 1
+                "code": {},
+                "pre": {}
             }
         },
         stylesheets: ["compiled/wysihtml5-styles.css"],
