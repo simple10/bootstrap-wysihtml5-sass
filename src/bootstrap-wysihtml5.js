@@ -467,9 +467,6 @@
 
     // these define our public api
     var methods = {
-        resetDefaults: function() {
-            $.fn.wysihtml5.defaultOptions = $.extend(true, {}, $.fn.wysihtml5.defaultOptionsCache);
-        },
         bypassDefaults: function(options) {
             return this.each(function () {
                 var $this = $(this);
@@ -574,10 +571,6 @@
         stylesheets: ["compiled/wysihtml5-styles.css"],
         locale: "en"
     };
-
-    if (typeof $.fn.wysihtml5.defaultOptionsCache === 'undefined') {
-        $.fn.wysihtml5.defaultOptionsCache = $.extend(true, {}, $.fn.wysihtml5.defaultOptions);
-    }
 
     $.fn.wysihtml5.locale = {
         en: {
