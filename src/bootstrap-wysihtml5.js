@@ -200,7 +200,7 @@
 
             // Build toolbar
             for (var key in options) {
-                if (!toolbarTemplates[key])
+                if (!options[key] || !toolbarTemplates[key])
                     continue;
                 var tpl = toolbarTemplates[key]($.fn.wysihtml5.locale[options.locale], options);
                 toolbar.append(tpl);
