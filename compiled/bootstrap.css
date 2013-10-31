@@ -4899,6 +4899,11 @@ td.visible-print {
   th.hidden-print,
   td.hidden-print {
     display: none !important; } }
+.wysihtml5-auto-resizable {
+  overflow: hidden; }
+  .wysihtml5-auto-resizable::-webkit-scrollbar {
+    display: none; }
+
 ul.wysihtml5-toolbar {
   margin: 0;
   padding: 0;

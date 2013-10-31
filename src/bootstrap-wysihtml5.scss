@@ -1,3 +1,10 @@
+.wysihtml5-auto-resizable {
+  overflow: hidden;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 ul.wysihtml5-toolbar {
   margin: 0;
   padding: 0;

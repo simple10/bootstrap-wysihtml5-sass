@@ -1,5 +1,9 @@
 // Define styles to include in editor iframe
 
+.wysihtml5-auto-resizable {
+  overflow: hidden;
+}
+
 .wysiwyg-color-black {
   color: black;
 }

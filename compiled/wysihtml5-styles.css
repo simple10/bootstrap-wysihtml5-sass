@@ -1,4 +1,7 @@
 /* bootstrap-wysihtml5-sass v0.0.5 by @simple10 */
+.wysihtml5-auto-resizable {
+  overflow: hidden; }
+
 .wysiwyg-color-black {
   color: black; }
 
