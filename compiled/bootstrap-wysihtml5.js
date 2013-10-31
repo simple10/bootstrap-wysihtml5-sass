@@ -503,7 +503,7 @@
     $.fn.wysihtml5.Constructor = Wysihtml5;
 
     $.fn.wysihtml5.defaultOptions = {
-        "font-styles": false,
+        "font-styles": true,
         "color": true,
         "emphasis": true,
         "link": true,
