@@ -433,7 +433,7 @@
             // Check if height reset is needed
             if (scrollHeight > c.minHeight && height < scrollHeight) {
                 // Reset height
-                c.$iframe.height(scrollHeight + 15);
+                c.$iframe.height(scrollHeight);
 
                 // Only scroll if cursor is at the bottom and user is typing
                 var seHeight = c.$scrollElem.height(),
