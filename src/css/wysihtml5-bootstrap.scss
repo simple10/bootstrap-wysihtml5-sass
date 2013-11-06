@@ -1,0 +1,93 @@
+@import "./styles";
+
+.dropdown.wysiwyg-colors {
+  .wysiwyg-color-1 {
+    background-color: $wysiwyg-color-1;
+  }
+  .wysiwyg-color-2 {
+    background-color: $wysiwyg-color-2;
+  }
+  .wysiwyg-color-3 {
+    background-color: $wysiwyg-color-3;
+  }
+  .wysiwyg-color-4 {
+    background-color: $wysiwyg-color-4;
+  }
+  .wysiwyg-color-5 {
+    background-color: $wysiwyg-color-5;
+  }
+  .wysiwyg-color-6 {
+    background-color: $wysiwyg-color-6;
+  }
+  .wysiwyg-color-7 {
+    background-color: $wysiwyg-color-7;
+  }
+
+  .dropdown-toggle .wysiwyg-color {
+    display: inline-block;
+    width: 30px;
+    height: 20px;
+    margin: -1px 2px -6px -4px;
+  }
+  .dropdown-menu .wysiwyg-color {
+    display: block;
+    width: 96%;
+    height: 1.5em;
+    padding: 2px;
+    margin: 2px auto;
+  }
+
+  .wysihtml5-command-active {
+    outline: 4px solid $input-border-focus;
+  }
+}
+
+ul.wysihtml5-toolbar {
+  margin: 5px 0;
+  padding: 0;
+  display: block;
+
+  &::after {
+    clear: both;
+    display: table;
+    content: "";
+  }
+
+  > li {
+    float: left;
+    display: list-item;
+    list-style: none;
+    margin: 0 5px 5px 0;
+  }
+
+  a.btn {
+    line-height: $line-height-base * 1.1;
+  }
+  a[data-wysihtml5-command=bold] {
+    font-weight: bold;
+  }
+
+  a[data-wysihtml5-command=italic] {
+    font-style: italic;
+  }
+
+  a[data-wysihtml5-command=underline] {
+    text-decoration: underline;
+  }
+
+  .wysihtml5-command-active, .wysihtml5-action-active {
+    &.btn {
+      @extend .btn:active;
+    }
+  }
+  .dropdown-menu .wysihtml5-command-active {
+    &:not(.wysiwyg-color) {
+      @extend .form-control[disabled];
+      cursor: pointer;
+    }
+  }
+}
+
+ul.wysihtml5-commands-disabled .dropdown-menu {
+  display: none !important;
+}

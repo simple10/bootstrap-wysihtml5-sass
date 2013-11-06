@@ -1,0 +1,50 @@
+// Define styles for editor content
+
+$wysiwyg-color-1: $text-color !default;
+$wysiwyg-color-2: $text-muted !default;
+$wysiwyg-color-3: $brand-primary !default;
+$wysiwyg-color-4: $state-warning-text !default;
+$wysiwyg-color-5: $state-danger-text !default;
+$wysiwyg-color-6: $state-success-text !default;
+$wysiwyg-color-7: $state-info-text !default;
+
+// iframe wrapper for responsive resizing of videos
+.wysiwyg-object-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  padding-top: 30px; height: 0; overflow: hidden;
+  iframe, object, embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+img.wysiwyg-image {
+  max-width: 100%;
+  height: auto;
+}
+
+.wysiwyg-color-1 {
+  color: $wysiwyg-color-1;
+}
+.wysiwyg-color-2 {
+  color: $wysiwyg-color-2;
+}
+.wysiwyg-color-3 {
+  color: $wysiwyg-color-3;
+}
+.wysiwyg-color-4 {
+  color: $wysiwyg-color-4;
+}
+.wysiwyg-color-5 {
+  color: $wysiwyg-color-5;
+}
+.wysiwyg-color-6 {
+  color: $wysiwyg-color-6;
+}
+.wysiwyg-color-7 {
+  color: $wysiwyg-color-7;
+}
